@@ -1,31 +1,37 @@
 ; Author: foolment
-; Version: 1.0
+; Version: 2.0
 
 ; Keymap: Control+Alt+E
 ^!e::
 WinGet, windowIdList, LIST,,, Program Manager
 windowCount := 0
+hintWindowInfoList := []
 availableWindowIds := []
-Gui, appListWindow: +LastFound +AlwaysOnTop +ToolWindow -Caption
-Gui, appListWindow: Color, FFFFFF
-Gui, applistwindow: Margin, 0, 0
-WinSet, Transparent, 200
 Loop %windowIdList% {
   windowId := windowIdList%A_Index%
   WinGetTitle, windowTitle, ahk_id %windowId%
   WinGetPos, x, y, w, h, ahk_id %windowId%
   if (w != 0 and h != 0 and windowTitle != "开始" and windowTitle != "") {
     availableWindowIds[++windowCount] := windowId
-    WinGet, proPath, ProcessPath, ahk_id %windowId%
-    fileDesc := FileGetInfo(proPath).FileDescription
-    iconMargin := 32 * (windowCount - 1)
     key := GetIndexKey(windowCount)
-    Gui, appListWindow: Add, Text, x0 y%iconMargin% w32 h32 hwndicontext 0x3
+
+    WinGet, proPath, ProcessPath, ahk_id %windowId%
+
+    Gui, hintWindow%A_Index%: +LastFound +AlwaysOnTop +ToolWindow -Caption
+    Gui, hintWindow%A_Index%: Color, FFFFFF
+    Gui, hintWindow%A_Index%: Margin, 0, 0
+
+    Gui, hintWindow%A_Index%: Add, Text, x0 y0 w32 h32 hwndicontext 0x3
+    ; Get window's icon
     SendMessage, 0x0170, ExtractAssociatedIcon(proPath), 0,, ahk_id %icontext%
-    Gui, appListWindow: Font, s20, Microsoft Yahei
-    Gui, appListWindow: Add, Text, xp yp w32 h32 +BackgroundTrans +Center, %key%
+
+    Gui, hintWindow%A_Index%: Font, s20, Microsoft Yahei
+    Gui, hintWindow%A_Index%: Add, Text, x0 y0 w32 h32 +BackgroundTrans +Center, %key%
+    WinSet, Transparent, 200
+    
+    ; Get application's name
+    fileDesc := FileGetInfo(proPath).FileDescription
     if (fileDesc = "Windows 资源管理器" or fileDesc = "Android Studio") {
-      Gui, appListWindow: Font, s14, Microsoft Yahei
       if (fileDesc = "Android Studio") {
         pos := InStr(windowTitle, " -")
         if (pos != 0) {
@@ -33,11 +39,33 @@ Loop %windowIdList% {
           windowTitle := simpleWindowTitle
         }
       }
-      Gui, appListWindow: Add, Text, x32 y%iconMargin% h32 0x200 +BackgroundTrans, %windowTitle%
+      Gui, hintWindow%A_Index%: Font, s14, Microsoft Yahei
+      Gui, hintWindow%A_Index%: Add, Text, x32 y0 h32 0x200 +BackgroundTrans, %windowTitle%
+    } else if StrLen(windowTitle) < 10 {
+      Gui, hintWindow%A_Index%: Font, s14, Microsoft Yahei
+      Gui, hintWindow%A_Index%: Add, Text, x32 y0 h32 0x200 +BackgroundTrans, %windowTitle%
     }
+
+    info := {x: x+w/2-16, y: y+h/2-16, id: A_Index}
+
+    conflict := true
+    while conflict and windowCount != 1 {
+      for index, eInfo in hintWindowInfoList {
+        conflict := Sqrt((info.x-eInfo.x)**2+(info.y-eInfo.y)**2) < 32
+        if (conflict) {
+          info.x := info.x+32
+          info.y := info.y+32
+          break
+        }
+      }
+    }
+
+    xPos := info.x
+    yPos := info.y
+    Gui, hintWindow%A_Index%: Show, x%xPos% y%yPos% AutoSize
+    hintWindowInfoList[windowCount] := info
   }
 }
-Gui, appListWindow: Show, AutoSize xCenter yCenter
 
 Input singleKey, L1,, a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z
 if (ErrorLevel = "Match") {
@@ -47,7 +75,16 @@ if (ErrorLevel = "Match") {
     WinActivate, ahk_id %activeId%
   }
 }
-Gui, appListWindow: Destroy
+for index, info in hintWindowInfoList {
+  hintWindowId := info.id
+  Gui, hintWindow%hintWindowId%: Destroy
+  ; Release object
+  info := ""
+}
+
+; Release object
+hintWindowInfoList := ""
+availableWindowIds := ""
 return
 
 GetKeyIndex(key) {
