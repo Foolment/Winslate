@@ -10,7 +10,7 @@ Inspired by [slate](https://github.com/jigish/slate) which is a window managemen
 
 ## Usage
 1. Run `winslate.ahk` (You need to install AutoHotKey first, download [here](https://autohotkey.com/download/)).
-2. After you press `[Ctrl] + [Alt] + [E]`, you will see the windows hints on your screen.
+2. After you press <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd>, you will see the windows hints on your screen.
 3. Press a letter on hint to switch to specific window.
 
 You can change hotkey to your favorite by modify `winslate.ahk` line 5:
