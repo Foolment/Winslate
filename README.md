@@ -9,8 +9,8 @@ Inspired by [slate](https://github.com/jigish/slate) which is a window managemen
 2.0
 
 ## Usage
-1. Run `winslate.ahk` (You need to install AutoHotKey first, download [here](https://autohotkey.com/download/)).
-2. After you press <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd>, you will see the windows hints on your screen.
+1. Run `winslate.exe`
+2. Press <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd>, you can see the windows hints on your screen.
 3. Press a letter on hint to switch to specific window.
 
 You can change hotkey to your favorite by modify `winslate.ahk` line 5:
@@ -19,3 +19,7 @@ You can change hotkey to your favorite by modify `winslate.ahk` line 5:
 ^!e::
 ```
 > reference [Hotkeys](https://autohotkey.com/docs/Hotkeys.htm)
+
+## Development
+1. modify `winslate.ahk`
+2. run `Ahk2Exe.exe /in winslate.ahk /icon icon.ico`(You need to install AutoHotKey first, download [here](https://autohotkey.com/download/)).
